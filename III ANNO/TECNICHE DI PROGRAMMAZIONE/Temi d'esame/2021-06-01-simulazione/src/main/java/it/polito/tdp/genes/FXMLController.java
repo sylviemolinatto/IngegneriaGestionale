@@ -5,11 +5,10 @@
 package it.polito.tdp.genes;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import it.polito.tdp.genes.model.Adiacente;
+import it.polito.tdp.genes.model.Edge;
 import it.polito.tdp.genes.model.Genes;
 import it.polito.tdp.genes.model.Model;
 import javafx.event.ActionEvent;
@@ -49,39 +48,23 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	String msg = model.creaGrafo() ;
-    	
-    	cmbGeni.getItems().clear() ;
-    	cmbGeni.getItems().addAll(model.getEssentialGenes()) ;
-    	
-    	txtResult.appendText(msg);
-    	
-        // Ri-abilita i bottoni
-        btnGeniAdiacenti.setDisable(false);
-        btnSimula.setDisable(false);
-        cmbGeni.setDisable(false);
-        txtIng.setDisable(false);
-
+    	txtResult.clear();
+    	txtResult.appendText("Creato grafo con "+this.model.creaGrafo().vertexSet().size()+" vertici e "+this.model.creaGrafo().edgeSet().size()+" archi");
     }
 
     @FXML
     void doGeniAdiacenti(ActionEvent event) {
-    	Genes g = cmbGeni.getValue() ;
-    	
-    	if(g==null) {
-    		txtResult.appendText("ERRORE: scegliere un gene\n");
-    		return ;
-    	}
-    	
-    	List<Adiacente> adiacenti = model.getGeniAdiacent(g) ;
-    	
-    	txtResult.appendText("Geni adiacenti a: "+g+"\n") ;
-    	if(adiacenti.size()==0) {
-    		txtResult.appendText("NESSUNO\n");
-    	} else {
-    		for(Adiacente a: adiacenti) {
-    			txtResult.appendText(a.getGene()+" "+a.getPeso()+"\n");
+
+    	txtResult.clear();
+    	Genes geneSelezionato = this.cmbGeni.getValue();
+    	if(geneSelezionato!=null) {
+    		txtResult.appendText("Geni adiacenti a : "+geneSelezionato+"\n");
+    		for(Edge e : this.model.geniAdiacenti(geneSelezionato)) {
+    			txtResult.appendText(e.getG2().toString()+"  "+e.getWeight()+"\n");
     		}
+    	}
+    	else {
+    		txtResult.appendText("Selezionare un gene");
     	}
     	
     }
@@ -89,31 +72,18 @@ public class FXMLController {
     @FXML
     void doSimula(ActionEvent event) {
     	
-    	Genes start = cmbGeni.getValue() ;
-    	if(start==null) {
-    		txtResult.appendText("ERRORE: scegliere un gene\n");
-    		return ;
-    	}
-    	
-    	int n ;
+    	txtResult.clear();
+    	int nIngegneri=0;
     	try {
-    		n = Integer.parseInt(txtIng.getText()) ;
-    	} catch(NumberFormatException ex) {
-    		txtResult.appendText("ERRORE: numero di ingegneri è obbligatorio e deve essere un numero\n");
-    		return ;
+    		nIngegneri= Integer.parseInt(this.txtIng.getText());
+    	}catch(NumberFormatException e) {
+    		txtResult.appendText("Inserire un numero di ingegneri");
+    	}
+    	if(nIngegneri>0 && this.cmbGeni.getValue()!=null) {
+    		Map<Genes,Integer> result = this.model.geniInStudioENumIng(nIngegneri,this.cmbGeni.getValue());
+    		txtResult.appendText(result.toString());
     	}
     	
-    	Map<Genes, Integer> studiati = model.simulaIngegneri(start, n) ;
-    	
-    	if(studiati==null) {
-    		txtResult.appendText("ERRORE: il gene selezionato è isolato\n");
-    	} else {
-    		txtResult.appendText("Risultato simulazione\n");
-    		for(Genes g: studiati.keySet()) {
-    			txtResult.appendText(g+ " "+ studiati.get(g)+ "\n");
-    		}
-    	}
-
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -124,17 +94,12 @@ public class FXMLController {
         assert txtIng != null : "fx:id=\"txtIng\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnSimula != null : "fx:id=\"btnSimula\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
-        
-        // Disabilita i bottoni (finché non verrà creato il grafo)
-        btnGeniAdiacenti.setDisable(true);
-        btnSimula.setDisable(true);
-        cmbGeni.setDisable(true);
-        txtIng.setDisable(true);
 
     }
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbGeni.getItems().addAll(this.model.getAllGenes());
     }
     
 }

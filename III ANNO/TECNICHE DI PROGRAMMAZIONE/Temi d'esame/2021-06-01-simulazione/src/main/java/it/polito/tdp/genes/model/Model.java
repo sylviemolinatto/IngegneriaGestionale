@@ -2,7 +2,6 @@ package it.polito.tdp.genes.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,73 +13,50 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import it.polito.tdp.genes.db.GenesDao;
 
 public class Model {
-
-	private List<Genes> essentialGenes;
-	private Map<String, Genes> essentialGenesIdMap;
-
-	private Graph<Genes, DefaultWeightedEdge> grafo;
-
-	public String creaGrafo() {
-		GenesDao dao = new GenesDao();
-		this.essentialGenes = dao.getAllEssentialGenes();
-		this.essentialGenesIdMap = new HashMap<>();
-		for (Genes g : this.essentialGenes)
-			this.essentialGenesIdMap.put(g.getGeneId(), g);
-
-		this.grafo = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-
-		Graphs.addAllVertices(this.grafo, this.essentialGenes);
-
-		List<Interactions> archi = dao.getInteractions(essentialGenesIdMap);
-		for (Interactions arco : archi) {
-			if (arco.getGene1().getChromosome() == arco.getGene2().getChromosome()) {
-				Graphs.addEdge(this.grafo, arco.getGene1(), arco.getGene2(), Math.abs(arco.getExpressionCorr() * 2.0));
-			} else {
-				Graphs.addEdge(this.grafo, arco.getGene1(), arco.getGene2(), Math.abs(arco.getExpressionCorr()));
+	
+	private Graph<Genes,DefaultWeightedEdge> grafo;
+	private GenesDao dao;
+	private Simulatore sim;
+	
+	public Model() {
+		this.dao = new GenesDao();
+		this.sim = new Simulatore();
+	}
+	
+	public List<Genes> getAllGenes(){
+		return this.dao.getAllGenes();
+	}
+	
+	public Graph<Genes,DefaultWeightedEdge> creaGrafo() {
+		this.grafo = new SimpleWeightedGraph<Genes,DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		
+		Graphs.addAllVertices(this.grafo, this.dao.getAllNecessaryGenes());
+		
+		for(Edge e : this.dao.getEdges()) {
+			if(!e.getG1().equals(e.getG2())) {
+				Graphs.addEdgeWithVertices(this.grafo, e.getG1(), e.getG2(), e.getWeight());
 			}
 		}
-
-		return String.format("Grafo creato con %d vertici e %d archi\n", this.grafo.vertexSet().size(),
-				this.grafo.edgeSet().size());
+		
+		return this.grafo;
+		
 	}
-
-	public List<Genes> getEssentialGenes() {
-		return essentialGenes;
-	}
-
-	public List<Adiacente> getGeniAdiacent(Genes g) {
-		List<Genes> vicini = Graphs.neighborListOf(this.grafo, g);
-		List<Adiacente> result = new ArrayList<>();
-		for (Genes v : vicini) {
-			result.add(new Adiacente(v, this.grafo.getEdgeWeight(this.grafo.getEdge(g, v))));
+	
+	public List<Edge> geniAdiacenti(Genes partenza){
+		
+		List<Edge> adiacenti = new ArrayList<Edge>();
+		
+		for(Edge e : this.dao.getEdges()) {
+			if(e.getG1().equals(partenza)) {
+				adiacenti.add(e);
+			}
 		}
-		Collections.sort(result);
-		return result;
-
+		Collections.sort(adiacenti);
+		return adiacenti;
 	}
-
-	public Map<Genes, Integer> simulaIngegneri(Genes start, int n) {
-		try {
-			Simulator sim = new Simulator(start, n, grafo);
-			sim.run();
-			return sim.getGeniStudiati();
-		} catch (IllegalArgumentException ex) {
-			return null;
-		}
+	
+	public Map<Genes,Integer> geniInStudioENumIng(int nIngegneri, Genes genes){
+		return this.sim.geniInStudioENumIng(nIngegneri,genes, this.grafo);
 	}
-
+	
 }
-
-/*
- * public List<Adiacenza> geniAdiacenti(Genes g){ Set<DefaultWeightedEdge>
- * adiac= grafo.outgoingEdgesOf(g);
- * 
- * List<Adiacenza> result = new ArrayList<Adiacenza>(); for(DefaultWeightedEdge
- * d: adiac) { result.add(new Adiacenza(g.getGeneId(),
- * Graphs.getOppositeVertex(grafo, d, g).getGeneId(), grafo.getEdgeWeight(d)));
- * } Collections.sort(result); return result;
- * 
- * }
- */
-
-//tmp.add(new Adiacenza(grafo.getEdgeSource(w),grafo.getEdgeTarget(w),grafo.getEdgeWeight(w)));
