@@ -42,13 +42,13 @@ public class Model {
 		
 		Graphs.addAllVertices(this.grafo, this.dao.getVertici(categoria, giorno));
 		this.vertici = this.dao.getVertici(categoria, giorno);
-		this.archi = this.dao.getArchi(categoria, giorno);
 		
-		for(Edge e : archi) {
-			if(this.grafo.containsVertex(e.getId1()) && this.grafo.containsVertex(e.getId2())){
-				Graphs.addEdgeWithVertices(this.grafo, e.getId1(), e.getId2(), e.getWeight());
-			}
+		for(Edge e : this.dao.getArchi(categoria, giorno)) {
+			Graphs.addEdgeWithVertices(this.grafo, e.getId1(), e.getId2());
+			this.archi.add(e);
 		}
+			
+		
 		
 		return String.format("Grafo creato (%d vertici, %d archi)\n", this.grafo.vertexSet().size(), this.grafo.edgeSet().size()); 
 	}
@@ -66,6 +66,9 @@ public class Model {
     	
     	double pesoMediano = this.getPesoMediano();
     	List<Edge> result = new ArrayList<Edge>();
+    	if(this.archi.size()==0) {
+    		return null;
+    	}
     	for(Edge e : this.archi) {
     		if(e.getWeight()<pesoMediano) {
     			result.add(e);
@@ -77,8 +80,12 @@ public class Model {
     
     public double getPesoMediano() {
     	
+    	double pesoMediano=0;
     	int pesoMax=Integer.MIN_VALUE;
     	
+    	if(this.archi.size()==0) {
+    		return 0;
+    	}
     	for(Edge e : this.archi) {
     		if(e.getWeight()>pesoMax) {
     			pesoMax = e.getWeight();
@@ -93,7 +100,7 @@ public class Model {
     		}
     	}
     	
-        double pesoMediano = (double)(pesoMax+pesoMin)/2;
+        pesoMediano = (double)(pesoMax+pesoMin)/2;
     	return pesoMediano;
     	
     }
@@ -133,7 +140,7 @@ public class Model {
 			this.best = new ArrayList<String>(parziale);
 		}
 		
-		if(livello==connessi.size()) {
+		if(livello==connessi.size()-1) {
 			return;
 		}
 		
@@ -143,6 +150,7 @@ public class Model {
 			
 			parziale.remove(parziale.size()-1);
 			ricorsiva(parziale, connessi, ultimo, livello+1);
+			
 		}
 		ricorsiva(parziale, connessi, ultimo, livello+1);
 		

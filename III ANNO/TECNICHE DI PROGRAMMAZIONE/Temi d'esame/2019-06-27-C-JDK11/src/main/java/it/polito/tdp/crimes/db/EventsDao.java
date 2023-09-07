@@ -165,32 +165,36 @@ public class EventsDao {
 		}
 	}
 	
-	public List<Edge> getArchi(String categoria, LocalDate data){
+	public List<Edge> getArchi( String categoria, LocalDate data){
 		
-		String sql = "SELECT e1.offense_type_id as o1, e2.offense_type_id as o2, COUNT(DISTINCT e1.precinct_id) as weight "
+		String sql ="SELECT e1.offense_type_id as o1, e2.offense_type_id as o2, COUNT(DISTINCT e1.precinct_id) as weight "
 				+ "FROM events e1, events e2 "
 				+ "WHERE e1.offense_type_id>e2.offense_type_id AND e1.precinct_id=e2.precinct_id "
 				+ "AND e1.offense_category_id=? AND e2.offense_category_id=e1.offense_category_id AND YEAR(e1.reported_date)=? AND MONTH(e1.reported_date)=? AND DAY(e1.reported_date)=? "
 				+ "AND YEAR(e2.reported_date)=YEAR(e1.reported_date) AND MONTH(e2.reported_date)=MONTH(e1.reported_date) AND DAY(e2.reported_date)=DAY(e1.reported_date) "
-				+ "GROUP BY e1.offense_type_id, e2.offense_type_id";
-		
+				+ "GROUP BY e1.offense_type_id,e2.offense_type_id";
 		try {
 			Connection conn = DBConnect.getConnection() ;
 
 			PreparedStatement st = conn.prepareStatement(sql) ;
 			
-			st.setString(1,categoria);
-			st.setInt(2, data.getYear());
+			st.setString(1, categoria);
+			st.setInt(2,data.getYear());
 			st.setInt(3, data.getMonthValue());
-			st.setInt(4, data.getDayOfMonth());
+			st.setInt(4, data.getDayOfYear());
 			
 			List<Edge> result = new ArrayList<Edge>();
+			
 			ResultSet res = st.executeQuery() ;
 			
-			
-		   while(res.next()) {
-			   result.add(new Edge(res.getString("o1"), res.getString("o2"), res.getInt("weight")));
-		   }
+			while(res.next()) {
+				try {
+					result.add(new Edge(res.getString("o1"), res.getString("o2"),res.getInt("weight")));
+				} catch (Throwable t) {
+					t.printStackTrace();
+					System.out.println(res.getInt("id"));
+				}
+			}
 		    
 			conn.close();
 			return result;
@@ -200,6 +204,5 @@ public class EventsDao {
 			e.printStackTrace();
 			return null;
 		}
-		
 	}
 }
