@@ -5,13 +5,17 @@
 package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
+import it.polito.tdp.PremierLeague.model.Edge;
 import it.polito.tdp.PremierLeague.model.Model;
-import it.polito.tdp.PremierLeague.model.Opponent;
 import it.polito.tdp.PremierLeague.model.Player;
-import it.polito.tdp.PremierLeague.model.TopPlayer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -48,65 +52,63 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	txtResult.clear();
-    	Double x = null;
-    	try {
-    		x = Double.parseDouble(txtGoals.getText());
-    	} catch (NumberFormatException e) {
-    		txtResult.appendText("Inserire un numero minimo di goal nel formato corretto");
-    		return;
-    	}
-    	this.model.creaGrafo(x);
-    	txtResult.appendText("Grafo creato\n");
-    	txtResult.appendText("# VERTICI: " + this.model.nVertici() + "\n");
-    	txtResult.appendText("# ARCHI: " + this.model.nArchi());
 
+    	txtResult.clear();
+    	double goalFatti;
+    	try {
+    		goalFatti=Double.parseDouble(this.txtGoals.getText());
+    		Graph<Player,DefaultWeightedEdge> grafo = this.model.creaGrafo(goalFatti);
+    		txtResult.appendText("Grafo creato!\n");
+    		txtResult.appendText("# VERTICI : "+grafo.vertexSet().size()+"\n");
+    		txtResult.appendText("# ARCHI : "+grafo.edgeSet().size()+"\n");
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		txtResult.setText("Il campo 'Goal fatti' deve essere un numero");
+    	}
+    	
     }
 
     @FXML
     void doDreamTeam(ActionEvent event) {
+
     	txtResult.clear();
-    	
-    	if(this.model.getGrafo() == null) {
-    		txtResult.clear();
-    		txtResult.appendText("Crea prima il grafo!\n");
-    		return;
-    	}
-    	
-    	Integer k = null;
+    	int numGiocatori;
     	
     	try {
-    		k = Integer.parseInt(txtK.getText());
-    	} catch(NumberFormatException e) {
-        	txtResult.clear();
-    		txtResult.appendText("Inserisce un valore intero per k");
-    		return;
+    		numGiocatori = Integer.parseInt(this.txtK.getText());
+    		List<Player> result = this.model.cercaDreamTeam(numGiocatori);
+    		txtResult.appendText("DREAM TEAM - grado di titolarità : "+this.model.calcolaGradoDiTitolarita(result)+"\n\n");
+    		for(Player p : result) {
+    			txtResult.appendText(p.getPlayerID()+" "+p.getName()+"\n");
+    		}
+    		
+    		
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		txtResult.setText("Errore : il valore k deve essere un numero intero");
     	}
-    	
-    	List<Player> dreamTeam = this.model.getDreamTeam(k);
-    	int degree = this.model.getBestDegree();
-    	
-    
-    	
-    	txtResult.appendText("DREAM TEAM - grado di titolarità: " + degree + "\n\n");
-    	for(Player p : dreamTeam)
-    		txtResult.appendText(p.toString() + "\n");
     }
 
     @FXML
     void doTopPlayer(ActionEvent event) {
+    	
     	txtResult.clear();
-    	TopPlayer topPlayer = this.model.getTopPlayer();
-    	if(topPlayer == null) {
-    		txtResult.appendText("Crea il grafo!");
-    		return;
-    	}
-    	
-    	txtResult.appendText("TOP PLAYER: " + topPlayer.getPlayer().toString());
-    	txtResult.appendText("\n\nAVVERSARI BATTUTI:\n");
-    	
-    	for(Opponent o : topPlayer.getOpponents()) {
-    		txtResult.appendText(o.toString() + "\n");
+    	double goalFatti;
+    	try {
+    		goalFatti=Double.parseDouble(this.txtGoals.getText());
+    		Graph<Player,DefaultWeightedEdge> grafo = this.model.creaGrafo(goalFatti);
+    		Player topPlayer = this.model.getTopPlayer();
+    		List<Edge> avversari = this.model.getAvversariBattuti();
+    		Collections.sort(avversari);
+    		txtResult.appendText("TOP PLAYER : "+topPlayer+"\n\n");
+    		txtResult.appendText("AVVERSARI BATTUTI\n");
+    		Map<Integer,Player> idMap = this.model.getIdMap();
+    		for(Edge e : avversari) {
+    			txtResult.appendText(idMap.get(e.getP2())+" | "+e.getWeight()+"\n");
+    		}
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		txtResult.setText("Il campo 'Goal fatti' deve essere un numero");
     	}
 
     }

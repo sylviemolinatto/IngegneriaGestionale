@@ -1,10 +1,11 @@
 package it.polito.tdp.PremierLeague.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -13,136 +14,144 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import it.polito.tdp.PremierLeague.db.PremierLeagueDAO;
 
-
-
 public class Model {
 	
-	private Graph<Player, DefaultWeightedEdge> graph;
-	private Map<Integer, Player> idMap;
+	private Graph<Player,DefaultWeightedEdge> grafo;
 	private PremierLeagueDAO dao;
+	private Map<Integer,Player> idMap;
+	private List<Player> best;
+	private int bestGradoTitolarita;
+	private List<Player> giocatori;
 	
-	private List<Player> dreamTeam;
-	private Integer bestDegree;
- 
-
 	
 	public Model() {
+		this.idMap = new HashMap<Integer,Player>();
 		this.dao = new PremierLeagueDAO();
+		for(Player p : this.dao.listAllPlayers()) {
+			idMap.put(p.getPlayerID(), p);
+		}
+	}
+	
+	public Graph<Player,DefaultWeightedEdge> creaGrafo(double goalFatti) {
+		
+		this.grafo = new SimpleDirectedWeightedGraph<Player,DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		
+		// aggiunta vertici
+		Graphs.addAllVertices(this.grafo,this.dao.getVertici(goalFatti));
+		
+		// aggiunta archi
+		
+		for(Edge e : this.dao.getArchi(goalFatti)) {
+			if(this.grafo.vertexSet().contains(this.idMap.get(e.getP1()))&&this.grafo.vertexSet().contains(this.idMap.get(e.getP2())) )
+				Graphs.addEdgeWithVertices(this.grafo,this.idMap.get(e.getP1()),this.idMap.get(e.getP2()),e.getWeight());
+		}
+		return this.grafo;
 	}
 
-	public void creaGrafo(double x) {
-		graph = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-		idMap = new HashMap<Integer, Player>();
+	public Player getTopPlayer() {
 		
-		dao.getVertici(x, idMap);
-		Graphs.addAllVertices(graph, idMap.values());
-		
-		for(Adiacenza adj : dao.getAdiacenze(idMap)) {
-			if(graph.containsVertex(adj.getP1()) && graph.containsVertex(adj.getP2())) {
-				if(adj.getPeso() < 0) {
-					//arco da p2 a p1
-					Graphs.addEdgeWithVertices(graph, adj.getP2(), adj.getP1(), ((double) -1)*adj.getPeso());
-				} else if(adj.getPeso() > 0){
-					//arco da p1 a p2
-					Graphs.addEdgeWithVertices(graph, adj.getP1(), adj.getP2(), adj.getPeso());
+		if(this.grafo!=null) {
+			int best=0;
+			Player topPlayer=null;
+			for(Player p : this.grafo.vertexSet()) {
+				if(this.grafo.outDegreeOf(p)>best) {
+					best=this.grafo.outDegreeOf(p);
+					topPlayer=p;
 				}
 			}
+			
+			return topPlayer;
 		}
 		
-		System.out.println(String.format("Grafo creato con %d vertici e %d archi", graph.vertexSet().size(), graph.edgeSet().size()));
-	}
-	
-	public int nVertici() {
-		return graph.vertexSet().size();
-	}
-	
-	public int nArchi() {
-		return graph.edgeSet().size();
-	}
-	
-	public Graph<Player, DefaultWeightedEdge> getGrafo(){
-		return graph;
-	}
-
-	public TopPlayer getTopPlayer() {
-		if(graph == null)
-			return null;
+		return null;
 		
-		Player best = null;
-		Integer maxDegree = Integer.MIN_VALUE;
-		for(Player p : graph.vertexSet()) {
-			if(graph.outDegreeOf(p) > maxDegree) {
-				maxDegree = graph.outDegreeOf(p);
-				best = p;
-			}
+	}
+	
+	
+	public List<Edge> getAvversariBattuti(){
+	
+		Player topPlayer = this.getTopPlayer();
+		List<Edge> avversari = new LinkedList();
+		for(DefaultWeightedEdge d : this.grafo.outgoingEdgesOf(topPlayer)) {
+			avversari.add(new Edge(this.grafo.getEdgeSource(d).getPlayerID(),this.grafo.getEdgeTarget(d).getPlayerID(),(int) this.grafo.getEdgeWeight(d)));
 		}
+		return avversari;
+	}
 		
-		TopPlayer topPlayer = new TopPlayer();
-		topPlayer.setPlayer(best);
-		
-		List<Opponent> opponents = new ArrayList<>();
-		for(DefaultWeightedEdge edge : graph.outgoingEdgesOf(topPlayer.getPlayer())) {
-			opponents.add(new Opponent(graph.getEdgeTarget(edge), (int) graph.getEdgeWeight(edge)));
-		}
-		Collections.sort(opponents);
-		topPlayer.setOpponents(opponents);
-		return topPlayer;
-		
+	
+	
+	public Map<Integer,Player> getIdMap(){
+		return this.idMap;
 	}
 	
-	public List<Player> getDreamTeam(int k){
-		this.bestDegree = 0;
-		this.dreamTeam = new ArrayList<Player>();
-		List<Player> partial = new ArrayList<Player>();
-		
-		this.recursive(partial, new ArrayList<Player>(this.graph.vertexSet()), k);
-
-		return dreamTeam;
+	public List<Player> cercaDreamTeam(int numGiocatori){
+		this.best = new ArrayList<Player>();
+		List<Player> parziale = new ArrayList<Player>();
+		this.bestGradoTitolarita = Integer.MIN_VALUE;
+		this.giocatori = new ArrayList<Player>(this.grafo.vertexSet());
+		ricorsiva(0,parziale,numGiocatori);
+		return best;
 	}
 	
-	public void recursive(List<Player> partial, List<Player> players, int k) {
-		if(partial.size() == k) {
-			int degree = this.getDegree(partial);
-			if(degree > this.bestDegree) {
-				dreamTeam = new ArrayList<>(partial);
-				bestDegree = degree;
+	public void ricorsiva(int livello, List<Player> parziale, int numGiocatori) {
+		
+		int gradoDiTitolarita = calcolaGradoDiTitolarita(parziale);
+		// caso terminale
+		if(parziale.size()==numGiocatori) {
+			// controllo se è la soluzione migliore
+			if(this.best==null || gradoDiTitolarita>this.bestGradoTitolarita) {
+				this.best = new ArrayList<Player>(parziale);
+				this.bestGradoTitolarita=gradoDiTitolarita;
+				
 			}
 			return;
 		}
 		
-		for(Player p : players) {
-			if(!partial.contains(p)) {
-				partial.add(p);
-				//i "battuti" di p non possono più essere considerati
-				List<Player> remainingPlayers = new ArrayList<>(players);
-				remainingPlayers.removeAll(Graphs.successorListOf(graph, p));
-				recursive(partial, remainingPlayers, k);
-				partial.remove(p);
-				
+		if(this.giocatori.size()==livello) {
+			return;
+		}
+		
+		// provo ad aggiungere un giocatore a parziale
+		if(parziale.size()==0 || InserimentoValido(parziale,this.giocatori.get(livello))) {
+			parziale.add(this.giocatori.get(livello));
+			ricorsiva(livello+1,parziale,numGiocatori);
+		}
+		
+		
+		// provo a non aggiungere
+		if(InserimentoValido(parziale,this.giocatori.get(livello))) {
+			parziale.remove(parziale.size()-1);
+			ricorsiva(livello+1,parziale,numGiocatori);
+			
+		}
+		
+		
+		
+	}
+
+	private boolean InserimentoValido(List<Player> parziale, Player player) {
+		
+		boolean trovato=true;
+		for(Player p : parziale) {
+			if(this.grafo.outgoingEdgesOf(p).contains(player)) {
+				trovato=false;
 			}
 		}
+		return trovato;
 	}
-	
-	private int getDegree(List<Player> team) {
-		int degree = 0;
-		int in;
-		int out;
 
-		for(Player p : team) {
-			in = 0;
-			out = 0;
-			for(DefaultWeightedEdge edge : this.graph.incomingEdgesOf(p))
-				in += (int) this.graph.getEdgeWeight(edge);
-			
-			for(DefaultWeightedEdge edge : graph.outgoingEdgesOf(p))
-				out += (int) graph.getEdgeWeight(edge);
+	public int calcolaGradoDiTitolarita(List<Player> parziale) {
 		
-			degree += (out-in);
+		int gradoDiTitolarita=0;
+		for(Player p : parziale) {
+			for(DefaultWeightedEdge d : this.grafo.outgoingEdgesOf(p)){
+				gradoDiTitolarita+=this.grafo.getEdgeWeight(d);
+			}
+			
+			for(DefaultWeightedEdge d : this.grafo.incomingEdgesOf(p)) {
+				gradoDiTitolarita-=this.grafo.getEdgeWeight(d);
+			}
 		}
-		return degree;
-	}
-
-	public Integer getBestDegree() {
-		return bestDegree;
+		return gradoDiTitolarita;
 	}
 }
