@@ -1,0 +1,6 @@
+
+     Devo creare una sequenza di review connesse di massima lunghezza che abbia sempre recensioni migliori
+     
+     aggiungo un primo arco a caso
+     
+     al passo successivo possono aggiungere solo un arco collegato che contenga un vertice con recensioni migliore o uguale

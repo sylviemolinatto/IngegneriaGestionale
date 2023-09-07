@@ -1,0 +1,9 @@
+
+List<String> hotspotQuartiereIniziale
+Assegno a ciascun operatore uno di questi hotspot e calcolo il tempo di intervento
+Quando l'operatore ha terminato l'intervento verifico se ci sono altri hotspot da 
+visionare nello stesso quartiere. Se è così calcolo il tempo di trasferimento e il tempo 
+di lavoro. Altrimenti aspetto che tutti gli operatori abbiano terminato il lavoro.
+
+
+Evento 1 (LAVORO_ASSEGNATO,0,10,1,h1,q)

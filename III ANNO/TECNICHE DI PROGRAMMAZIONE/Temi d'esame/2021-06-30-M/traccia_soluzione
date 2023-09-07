@@ -1,0 +1,15 @@
+  ricerca cammini
+
+  INPUT
+  - Graph<Integer, DefaultWeightedEdge>
+  
+  CONDIZIONE DI TERMINAZIONE
+  - Non ci sono più vertici connessi
+  
+  SOLUZIONE PARZIALE
+  - List<Integer>
+
+  OUTPUT
+  - List<Integer>
+
+
