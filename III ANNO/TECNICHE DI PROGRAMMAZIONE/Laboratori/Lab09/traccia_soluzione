@@ -1,0 +1,7 @@
+L'utente inserisce un anno
+
+- Bisogna individuare tutti i paesi che prima di quell'anno presentano confini via terra e
+  creare un grafo che abbia come vertici tali paesi
+- Gli archi sono costituiti dai confini
+
+- Devo restituire la lista di paesi e il numeri di confinanti per ciascuno

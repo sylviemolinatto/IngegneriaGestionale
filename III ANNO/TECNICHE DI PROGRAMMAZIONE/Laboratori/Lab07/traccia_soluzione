@@ -1,0 +1,13 @@
+Obiettivo: cercare il sottoinsieme di eventi di blackout che si sono verificati in massimo X anni e
+           per non più di Y ore che massimizzi il numero di persone coinvolte
+
+
+LIVELLO : ad ogni livello aggiungo un evento controllando che non vengano superate le ore di disservizio totali e 
+          gli anni coinvolti
+
+SOLUZIONE PARZIALE : lista di eventi di blackout che non supera le ore totali di disservizio e gli anni coinvolti
+
+SOLUZIONE COMPLETA : lista di eventi (List<BackOrder>)che massimizza il numero di persone coinvolte 
+                     e che non supera X e Y
+                    
+                   
