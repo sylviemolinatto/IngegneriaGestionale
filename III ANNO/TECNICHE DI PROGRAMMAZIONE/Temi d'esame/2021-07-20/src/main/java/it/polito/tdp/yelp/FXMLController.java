@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.yelp.model.Giornalista;
 import it.polito.tdp.yelp.model.Model;
 import it.polito.tdp.yelp.model.User;
 import javafx.event.ActionEvent;
@@ -56,35 +57,80 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	String minReviewS = txtN.getText();
+    	
+    	txtResult.clear();
+    	String minReviews = this.txtN.getText();
+    	
     	try {
-    		int minReview = Integer.parseInt(minReviewS);
-    		Integer anno = cmbAnno.getValue();
+    		int minReview = Integer.parseInt(minReviews);
+    		Integer anno = this.cmbAnno.getValue();
     		if(anno==null) {
-    			txtResult.setText("Devi selezioare un anno valido\n");
+    			txtResult.setText("Devi selezionare un anno valido\n");
     			return;
     		}
     		
-    		String msg = model.creaGrafo(minReview, anno);
-    		txtResult.setText(msg);
+    		txtResult.setText(this.model.creaGrafo(minReview, anno));
     		cmbUtente.getItems().clear();
-    		cmbUtente.getItems().addAll(model.getUsers());
+    		cmbUtente.getItems().addAll(this.model.getUsers());
     		
-    	} catch(NumberFormatException e) {
-    		txtResult.setText("Devi inserire un numero 'n' valido\n");
-    		return ;
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		txtResult.setText("Devi inserire un numero valido");
     	}
+
     }
 
     @FXML
     void doUtenteSimile(ActionEvent event) {
+
     	User u = cmbUtente.getValue();
-    	List<User> vicini = model.utentiPiuSimili(u);
-    	txtResult.setText(vicini.toString());
+    	if(u==null) {
+    		txtResult.setText("Devi selezionare un utente dopo avere creato il grafo");
+    		return;
+    	}
+    	List<User> vicini = model.utentiSimili(u);
+    	
+    	txtResult.setText("Utenti più vicini a "+u+"\n\n");
+    	for(User u2 : vicini) {
+    		txtResult.appendText(u2.toString()+"\n");
+    	}
     }
     
     @FXML
     void doSimula(ActionEvent event) {
+    	
+    	int x1;
+    	int x2;
+    	try {
+    		x1 = Integer.parseInt(this.txtX1.getText());
+    		x2 = Integer.parseInt(this.txtX2.getText());
+    		if(this.txtX1.getText()=="" || this.txtX2.getText()=="") {
+    			txtResult.appendText("Inserire un valore intero nei campi x1 e x2");
+    		}
+    		if(this.model.grafoCreato()) {
+    			if(x2>this.model.getNVertici()) {
+    				txtResult.appendText("Il numero di utenti da intervistare deve essere minore o uguale al numero di vertici del grafo creato precedentemente!");
+    				return;
+    			}
+    			if(x1>x2) {
+    				txtResult.appendText("Il numero di intervistatori deve essere sempre (molto) minore del numero di utenti intervistati");
+    				return;
+    			}
+    			this.model.simula(x1, x2);
+    			txtResult.appendText("Simulazione terminata!\n");
+    			for(Giornalista g : this.model.getGiornalisti()) {
+    				txtResult.appendText("Giornalista "+g.getId()+" : "+g.getNumeroIntervistati()+"\n");
+    			}
+    			txtResult.appendText("Durata analisi di mercato : "+this.model.getNumeroGiorni()+"giorni\n");
+    		}
+    		else {
+    			txtResult.appendText("Devi prima creare il grafo!");
+    			return;
+    		}
+    	}catch(NumberFormatException e) {
+    		e.printStackTrace();
+    		txtResult.setText("x1 e x2 devono essere dei numeri interi");
+    	}
 
     }
     
@@ -100,10 +146,11 @@ public class FXMLController {
         assert cmbUtente != null : "fx:id=\"cmbUtente\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtX1 != null : "fx:id=\"txtX1\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
+       
+        for(int anno=2005; anno<=2013; anno++) {
+          	cmbAnno.getItems().add(anno);
+          }
 
-        for (int anno = 2005; anno<=2013; anno++) {
-        	cmbAnno.getItems().add(anno);
-        }
     }
     
     public void setModel(Model model) {

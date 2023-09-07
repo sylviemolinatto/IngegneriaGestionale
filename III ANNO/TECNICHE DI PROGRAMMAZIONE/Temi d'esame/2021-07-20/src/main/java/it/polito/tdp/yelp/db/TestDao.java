@@ -9,13 +9,11 @@ public class TestDao {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		YelpDao dao = new YelpDao();
-//		System.out.println(String.format("Users: %d\nBusiness: %d\nReviews: %d\n", 
-//				dao.getAllUsers().size(), dao.getAllBusiness().size(), dao.getAllReviews().size()));
-		List<User> utenti = dao.getUsersWithReviews(200);
-		System.out.println(utenti);
-		System.out.println(utenti.size());
+		// System.out.println(String.format("Users: %d\nBusiness: %d\nReviews: %d\n", 
+				 // dao.getAllUsers().size(), dao.getAllBusiness().size(), dao.getAllReviews().size()));
 		
-//		int sim = dao.calcolaSimilarita(null, null, 0)
+		List<User> utenti = dao.getUsersWithReviews(200);
+		System.out.println(utenti.size());
 		
 	}
 
