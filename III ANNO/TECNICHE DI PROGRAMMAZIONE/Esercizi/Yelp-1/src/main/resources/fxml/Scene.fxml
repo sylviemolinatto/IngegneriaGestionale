@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.Yelp.FXMLController">
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleLoadData" text="Load Data" />
+            <TableView fx:id="tblBusiness">
+              <columns>
+                <TableColumn fx:id="colName" editable="false" prefWidth="91.99994146823883" text="Name" />
+                <TableColumn fx:id="colStars" prefWidth="96.66661834716797" text="Stars" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

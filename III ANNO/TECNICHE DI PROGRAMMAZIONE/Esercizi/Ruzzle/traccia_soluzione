@@ -1,0 +1,27 @@
+INPUT PROBLEMA:
+     Stringa da riconoscere 'parola'
+     Contenuto della Board
+     Posizione della prima lettera
+     
+SOLUZIONE PARZIALE
+     Una stringa, la parte della 'parola' che ho già riconosciuto
+     Elenco delle posizioni delle lettere riconosciute
+     
+SOLUZIONE TOTALE
+     La parola riconosciuta per intero
+     Elenco delle posizioni delle lettere
+
+LIVELLO RICORSIONE
+    Numero di caratteri riconosciuti
+  
+CONDIZIONI DI TERMINAZIONE
+    LIVELLO == parola.size()
+    se viene trovata 'parola', stoppo la ricorsione
+    
+AVVIO RICORSIONE
+   livello = 1
+   parto dalla posizione della prima lettera
+   
+STRUTTURE DATI
+   Stringa (parziale)
+   int (livello)
