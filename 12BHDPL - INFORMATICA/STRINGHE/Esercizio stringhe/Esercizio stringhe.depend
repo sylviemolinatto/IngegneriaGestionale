@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1574791878 source:c:\users\sylvie\desktop\informatica\esercizio stringhe\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<string.h>
+

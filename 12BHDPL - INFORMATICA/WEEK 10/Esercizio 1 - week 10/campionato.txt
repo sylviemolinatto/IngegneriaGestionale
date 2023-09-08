@@ -1,0 +1,6 @@
+toro 10
+juve 40
+milan 0
+genova 9
+atalanta 70
+sampdoria 55

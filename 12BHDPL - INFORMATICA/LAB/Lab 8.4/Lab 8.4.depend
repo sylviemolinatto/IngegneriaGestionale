@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1576350323 source:c:\users\sylvie\desktop\informatica\lab\lab 8.4\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+

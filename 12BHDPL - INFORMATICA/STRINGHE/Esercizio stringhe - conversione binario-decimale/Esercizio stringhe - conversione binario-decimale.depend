@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1574860585 source:c:\users\sylvie\desktop\informatica\esercizio stringhe - conversione binario-decimale\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

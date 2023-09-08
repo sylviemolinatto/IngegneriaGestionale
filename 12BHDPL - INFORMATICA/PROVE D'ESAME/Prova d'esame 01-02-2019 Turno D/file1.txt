@@ -1,0 +1,8 @@
+13/02/1980;Mario,Rossi Aviano
+12/04/1987;Giuseppe,De_Rossi Chiopris-Viscone
+21/03/1987;Giovanni,Blu Camino_al_Tagliamento
+12/12/1986;Giulio_Maria,De_Verdi Codroipo
+01/11/1991;Francesca,Rossi_Gialli Fogliano_Redipuglia
+21/03/1988;Giovanna,Neri Camino_al_Tagliamento
+12/12/1993;Giada,Ciano Aviano
+

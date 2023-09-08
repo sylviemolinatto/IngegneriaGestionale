@@ -1,0 +1,7 @@
+Torino      Chivasso 23.7
+Santhia     Vercelli 21.9
+Chivasso    Santhia  35.0
+Magenta     Rho      19.3
+Novara      Magenta  23.4
+Rho         Milano   18.5
+Vercelli    Novara   24.8

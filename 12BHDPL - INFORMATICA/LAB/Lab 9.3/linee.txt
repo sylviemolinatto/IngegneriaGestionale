@@ -1,0 +1,5 @@
+Torino 10:45 Susa 11:24
+Milano 11:30 Roma 15:30
+Torino 10:15 Bardonecchia 15:35
+Roma 8:20 Venezia 12:30
+Susa 9:24 Torino 10:45

@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1576688278 source:c:\users\sylvie\desktop\informatica\turno d\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+

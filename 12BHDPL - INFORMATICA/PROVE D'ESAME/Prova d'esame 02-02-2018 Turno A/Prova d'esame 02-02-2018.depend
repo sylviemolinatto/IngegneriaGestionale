@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1580834431 source:c:\users\sylvie\desktop\informatica\prove d'esame\prova d'esame 02-02-2018\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<limits.h>
+

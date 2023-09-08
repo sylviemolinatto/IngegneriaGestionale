@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1579878787 source:c:\users\sylvie\desktop\informatica\prove d'esame\esame 01-02-2019 turno d\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

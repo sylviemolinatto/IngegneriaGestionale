@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1577356243 source:c:\users\sylvie\desktop\informatica\lab\lab 9.3\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

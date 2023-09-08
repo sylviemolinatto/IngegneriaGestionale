@@ -1,0 +1,10 @@
+Roma Milano AZ
+Milano Roma AZ
+Torino Parigi AF
+Parigi Torino AF
+Milano Londra BA
+Londra Milano BA
+Milano NewYork AZ
+Milano NewYork UA
+NewYork Milano AZ
+NewYork Milano UA
